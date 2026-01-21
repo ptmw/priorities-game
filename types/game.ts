@@ -72,11 +72,11 @@ export type GameStore = GameState & GameActions;
 /** Winning score threshold */
 export const WINNING_SCORE = 10;
 
-/** Rank labels for display */
+/** Rank labels for display - updated for tap interface */
 export const RANK_LABELS: Record<number, { emoji: string; label: string; color: string }> = {
-  1: { emoji: "❤️", label: "Love", color: "bg-rank-1" },
-  2: { emoji: "👍", label: "Like", color: "bg-rank-2" },
-  3: { emoji: "😐", label: "Meh", color: "bg-rank-3" },
-  4: { emoji: "👎", label: "Dislike", color: "bg-rank-4" },
-  5: { emoji: "💔", label: "Loathe", color: "bg-rank-5" },
+  1: { emoji: "❤️", label: "Love it", color: "bg-rank-1" },
+  2: { emoji: "😊", label: "Like it", color: "bg-rank-2" },
+  3: { emoji: "😐", label: "It's okay", color: "bg-rank-3" },
+  4: { emoji: "🙁", label: "Not a fan", color: "bg-rank-4" },
+  5: { emoji: "😡", label: "Hate it", color: "bg-rank-5" },
 };

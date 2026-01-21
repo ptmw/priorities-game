@@ -37,7 +37,7 @@ export function GameContainer() {
     setCurrentRanking([]);
   }, [phase, currentRound]);
 
-  // Check if all cards are ranked
+  // Check if ranking is ready to submit (all 5 cards placed)
   const isRankingComplete = currentRanking.length === 5;
 
   // Handle submit ranking (picker phase)
@@ -63,7 +63,7 @@ export function GameContainer() {
               Welcome to Priorities!
             </h2>
             <p className="text-lg text-foreground/70 max-w-md mx-auto">
-              Rank 5 cards from ❤️ Love to 💔 Loathe, then try to remember your ranking!
+              Rank 5 cards from ❤️ Love it to 😡 Hate it, then try to remember your ranking!
             </p>
             <p className="text-base text-foreground/60 max-w-md mx-auto">
               <span className="font-semibold text-correct">You</span> score for each correct guess.{" "}
@@ -91,7 +91,7 @@ export function GameContainer() {
               onRankingChange={setCurrentRanking}
               title="🎯 Rank these items"
             />
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-2">
               <Button
                 onClick={handleSubmitRanking}
                 disabled={!isRankingComplete}
@@ -103,20 +103,15 @@ export function GameContainer() {
                 </span>
               </Button>
             </div>
-            {!isRankingComplete && (
-              <p className="text-center text-sm text-foreground/60">
-                Place all 5 cards to continue ({currentRanking.length}/5)
-              </p>
-            )}
           </div>
         );
 
       case "guessing":
         return (
           <div className="space-y-6">
-            <div className="text-center mb-4">
-              <p className="text-foreground/70">
-                Now guess the ranking you just made!
+            <div className="text-center mb-2">
+              <p className="text-foreground/70 font-medium">
+                Now recreate your ranking from memory!
               </p>
             </div>
             <RankingArea
@@ -125,7 +120,7 @@ export function GameContainer() {
               onRankingChange={setCurrentRanking}
               title="🤔 Guess the ranking"
             />
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-2">
               <Button
                 onClick={handleSubmitGuess}
                 disabled={!isRankingComplete}
@@ -137,11 +132,6 @@ export function GameContainer() {
                 </span>
               </Button>
             </div>
-            {!isRankingComplete && (
-              <p className="text-center text-sm text-foreground/60">
-                Place all 5 cards to continue ({currentRanking.length}/5)
-              </p>
-            )}
           </div>
         );
 
@@ -274,14 +264,13 @@ export function GameContainer() {
             </button>
             <h3 className="font-bold text-foreground mb-2">How to Play</h3>
             <ol className="text-sm text-foreground/70 space-y-1 list-decimal list-inside">
-              <li>Drag 5 cards into the ranking slots (❤️ Love to 💔 Loathe)</li>
-              <li>Submit your ranking</li>
-              <li>Try to remember and recreate your ranking</li>
+              <li>Cards start in random positions</li>
+              <li>Tap two cards to swap them</li>
+              <li>Arrange from ❤️ Love it to 😡 Hate it</li>
+              <li>Submit, then recreate your ranking from memory</li>
               <li>
-                <span className="text-correct font-semibold">You</span> score 1 point for each correct guess
-              </li>
-              <li>
-                <span className="text-incorrect font-semibold">The Game</span> scores 1 point for each mistake
+                <span className="text-correct font-semibold">You</span> score for correct positions,{" "}
+                <span className="text-incorrect font-semibold">Game</span> scores for mistakes
               </li>
               <li>First to {WINNING_SCORE} wins!</li>
             </ol>
