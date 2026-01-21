@@ -1,26 +1,138 @@
 @import "tailwindcss";
 
+/* Playful Priorities Game Theme - Light Mode Only */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Primary palette - vibrant and playful */
+  --pink-pop: #ff6b9d;
+  --purple-punch: #9b5de5;
+  --blue-bright: #00bbf9;
+  --yellow-sunny: #fee440;
+  --green-fresh: #00f5d4;
+  --coral-warm: #ff7b54;
+  --orange-zest: #ff9f1c;
+  
+  /* UI Colors */
+  --background: #fef9ff;
+  --foreground: #2d1b4e;
+  --card-bg: #ffffff;
+  --card-shadow: rgba(155, 93, 229, 0.15);
+  
+  /* Ranking colors (love to loathe) */
+  --rank-1: #00f5d4;  /* Love - teal */
+  --rank-2: #00bbf9;  /* Like - blue */
+  --rank-3: #fee440;  /* Meh - yellow */
+  --rank-4: #ff9f1c;  /* Dislike - orange */
+  --rank-5: #ff6b9d;  /* Loathe - pink */
+  
+  /* Results */
+  --correct: #10b981;
+  --incorrect: #ef4444;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-pink-pop: var(--pink-pop);
+  --color-purple-punch: var(--purple-punch);
+  --color-blue-bright: var(--blue-bright);
+  --color-yellow-sunny: var(--yellow-sunny);
+  --color-green-fresh: var(--green-fresh);
+  --color-coral-warm: var(--coral-warm);
+  --color-orange-zest: var(--orange-zest);
+  --color-card-bg: var(--card-bg);
+  --color-rank-1: var(--rank-1);
+  --color-rank-2: var(--rank-2);
+  --color-rank-3: var(--rank-3);
+  --color-rank-4: var(--rank-4);
+  --color-rank-5: var(--rank-5);
+  --color-correct: var(--correct);
+  --color-incorrect: var(--incorrect);
+  --font-sans: var(--font-nunito);
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, #fef9ff 0%, #f0e6ff 50%, #e6f4ff 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-nunito), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Card styling base */
+.card-base {
+  background: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px var(--card-shadow);
+  transition: all 0.2s ease;
+}
+
+.card-base:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--card-shadow);
+}
+
+/* Drag and drop feedback */
+.drop-zone-active {
+  background: rgba(155, 93, 229, 0.1);
+  border: 2px dashed var(--purple-punch);
+}
+
+.dragging {
+  opacity: 0.8;
+  transform: rotate(3deg) scale(1.05);
+  box-shadow: 0 12px 40px rgba(155, 93, 229, 0.3);
+}
+
+/* Fun button animation */
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.btn-pulse:hover {
+  animation: pulse-subtle 0.6s ease-in-out infinite;
+}
+
+/* Card entrance animation */
+@keyframes bounce-in {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.3) translateY(20px); 
+  }
+  50% { 
+    transform: scale(1.05) translateY(-5px); 
+  }
+  70% { 
+    transform: scale(0.95) translateY(2px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s ease-out forwards;
+}
+
+/* Stagger delays for card animations */
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+
+/* Results reveal animation */
+@keyframes reveal-result {
+  0% { 
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-reveal {
+  animation: reveal-result 0.3s ease-out forwards;
 }
