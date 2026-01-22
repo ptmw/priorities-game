@@ -1,30 +1,52 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Lazy initialization to avoid build-time errors during static page generation
+let _supabase: SupabaseClient | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing Supabase environment variables. " +
-    "Please ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in .env.local"
-  );
+/**
+ * Get the Supabase client (lazily initialized)
+ * This ensures the client is only created at runtime when env vars are available
+ */
+function getSupabaseClient(): SupabaseClient {
+  if (_supabase) return _supabase;
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      "Missing Supabase environment variables. " +
+      "Please ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set."
+    );
+  }
+
+  _supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      // We're not using Supabase Auth (anonymous players only)
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10, // Throttle real-time events
+      },
+    },
+  });
+
+  return _supabase;
 }
 
 /**
  * Supabase client for browser/client-side usage
  * Uses the anon key for public access with RLS
- * Note: We use untyped client for flexibility; types are enforced at the application layer
+ * Accessed via getter to ensure lazy initialization
  */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    // We're not using Supabase Auth (anonymous players only)
-    persistSession: false,
-    autoRefreshToken: false,
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10, // Throttle real-time events
-    },
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    const value = (client as any)[prop];
+    // Bind methods to preserve 'this' context
+    return typeof value === "function" ? value.bind(client) : value;
   },
 });
 
