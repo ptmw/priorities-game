@@ -47,6 +47,8 @@ const initialState: MultiplayerState = {
   players: [],
   currentRound: null,
   myRole: null,
+  selectedCards: [],
+  localRanking: [],
   phase: "landing",
   isHost: false,
 };

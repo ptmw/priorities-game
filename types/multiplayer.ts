@@ -5,6 +5,7 @@
  */
 
 import type { Room, Player, Round, RankingEntry, RoundResult } from "./database";
+import type { Card } from "./game";
 
 // Re-export database types for convenience
 export type { Room, Player, Round, RankingEntry, RoundResult };
@@ -44,6 +45,8 @@ export type MultiplayerState = {
   // Current round
   currentRound: Round | null;
   myRole: PlayerRole | null;
+  selectedCards: Card[];      // The 5 cards for the current round
+  localRanking: RankingEntry[]; // Local ranking state for picker/guesser
   
   // UI state
   phase: MultiplayerPhase;
