@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Create a server-side Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 /**
  * POST /api/leave-room
  * 
@@ -15,6 +9,13 @@ const supabase = createClient(
  */
 export async function POST(request: NextRequest) {
   try {
+    // Create Supabase client inside handler (not at module level)
+    // to avoid build-time execution when env vars aren't available
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     const body = await request.json();
     const { playerId, roomId } = body;
 
