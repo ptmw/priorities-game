@@ -7,7 +7,7 @@ import { RankingArea } from "./game/RankingArea";
 import { ResultsDisplay } from "./game/ResultsDisplay";
 import { ScoreDisplay } from "./game/ScoreDisplay";
 import { Button } from "./ui/Button";
-import { RotateCcw, Play, Send, ArrowRight, HelpCircle, X, Trophy, Skull, Loader2 } from "lucide-react";
+import { RotateCcw, Play, Send, ArrowRight, HelpCircle, X, Trophy, Skull } from "lucide-react";
 
 export function GameContainer() {
   const {
@@ -21,9 +21,6 @@ export function GameContainer() {
     results,
     correctCount,
     winner,
-    isLoadingCards,
-    allCards,
-    loadCardsIfNeeded,
     startRound,
     submitRanking,
     submitGuess,
@@ -35,11 +32,6 @@ export function GameContainer() {
   const [currentRanking, setCurrentRanking] = useState<RankedCard[]>([]);
   const [showInstructions, setShowInstructions] = useState(false);
 
-  // Load cards on mount
-  useEffect(() => {
-    loadCardsIfNeeded();
-  }, [loadCardsIfNeeded]);
-
   // Reset current ranking when phase changes
   useEffect(() => {
     setCurrentRanking([]);
@@ -47,9 +39,6 @@ export function GameContainer() {
 
   // Check if ranking is ready to submit (all 5 cards placed)
   const isRankingComplete = currentRanking.length === 5;
-
-  // Check if cards are ready
-  const cardsReady = allCards.length > 0;
 
   // Handle submit ranking (picker phase)
   const handleSubmitRanking = () => {
@@ -65,16 +54,6 @@ export function GameContainer() {
 
   // Render based on game phase
   const renderPhase = () => {
-    // Loading state
-    if (isLoadingCards || !cardsReady) {
-      return (
-        <div className="flex flex-col items-center justify-center py-20 space-y-4">
-          <Loader2 className="w-10 h-10 text-purple-punch animate-spin" />
-          <p className="text-foreground/60">Loading cards...</p>
-        </div>
-      );
-    }
-
     // Game hasn't started yet
     if (currentRound === 0) {
       return (
@@ -262,7 +241,7 @@ export function GameContainer() {
               variant="ghost"
               size="sm"
               onClick={resetGame}
-              disabled={currentRound === 0 || !cardsReady}
+              disabled={currentRound === 0}
             >
               <span className="flex items-center gap-1">
                 <RotateCcw className="w-4 h-4" />

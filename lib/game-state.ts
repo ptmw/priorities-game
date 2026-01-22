@@ -1,15 +1,7 @@
 import { create } from "zustand";
-import { GameStore, RankedCard, GamePhase, Winner, WINNING_SCORE, Card } from "@/types/game";
-import { loadCards, shuffle } from "./card-utils";
+import { GameStore, RankedCard, GamePhase, Winner, WINNING_SCORE } from "@/types/game";
+import { getRandomCards } from "./card-utils";
 import { compareRankings, calculateScore } from "./game-logic";
-
-/** Extended game state with cards loading */
-interface ExtendedGameState {
-  /** Whether cards are loading */
-  isLoadingCards: boolean;
-  /** All available cards */
-  allCards: Card[];
-}
 
 /** Initial game state */
 const initialState = {
@@ -27,51 +19,17 @@ const initialState = {
   winner: null as Winner,
 };
 
-/** Extended initial state */
-const extendedInitialState: ExtendedGameState = {
-  isLoadingCards: false,
-  allCards: [],
-};
-
 /**
  * Zustand store for game state management
  */
-export const useGameStore = create<GameStore & ExtendedGameState & { loadCardsIfNeeded: () => Promise<void> }>((set, get) => ({
+export const useGameStore = create<GameStore>((set, get) => ({
   ...initialState,
-  ...extendedInitialState,
-
-  /**
-   * Load cards from public folder if not already loaded
-   */
-  loadCardsIfNeeded: async () => {
-    const { allCards, isLoadingCards } = get();
-    if (allCards.length > 0 || isLoadingCards) {
-      return;
-    }
-
-    set({ isLoadingCards: true });
-    try {
-      const cards = await loadCards();
-      set({ allCards: cards, isLoadingCards: false });
-    } catch (error) {
-      console.error("Failed to load cards:", error);
-      set({ isLoadingCards: false });
-    }
-  },
 
   /**
    * Start a new round with 5 random cards
    */
   startRound: () => {
-    const { allCards } = get();
-    if (allCards.length === 0) {
-      console.error("Cards not loaded yet");
-      return;
-    }
-
-    const shuffled = shuffle(allCards);
-    const cards = shuffled.slice(0, 5);
-    
+    const cards = getRandomCards(5);
     set({
       phase: "ranking",
       selectedCards: cards,
