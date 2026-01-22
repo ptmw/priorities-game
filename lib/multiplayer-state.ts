@@ -8,7 +8,7 @@
 
 import { create } from "zustand";
 import { supabase, now } from "./supabase";
-import { allCards } from "./cards-data";
+import { cardsData as allCards } from "./cards-data";
 import {
   createRoom as createRoomUtil,
   joinRoom as joinRoomUtil,
