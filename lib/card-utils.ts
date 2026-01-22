@@ -1,7 +1,7 @@
 import { Card } from "@/types/game";
-import cardsData from "./cards.json";
+import { cardsData } from "./cards-data";
 
-/** All cards from the deck (imported statically at build time) */
+/** All cards from the deck (imported as TypeScript for Vercel compatibility) */
 const allCards: Card[] = cardsData;
 
 /**
