@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Card as CardType, RankedCard, RANK_LABELS } from "@/types/game";
 import { createRankedCard } from "@/lib/game-logic";
 import { shuffle } from "@/lib/card-utils";
@@ -29,25 +29,21 @@ export function RankingArea({
   // Track which card is currently selected for swapping
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
   
-  // Track if we've initialized to prevent double-init
-  const hasInitialized = useRef(false);
-
-  // Initialize cards in random positions when availableCards changes and rankedCards is empty
+  // Initialize cards in random positions when we have 5 cards but no ranked cards
+  // This runs whenever rankedCards becomes empty (phase change or new round)
   useEffect(() => {
-    if (availableCards.length === 5 && rankedCards.length === 0 && !hasInitialized.current) {
-      hasInitialized.current = true;
-      const shuffledCards = shuffle(availableCards);
-      const initialRanking = shuffledCards.map((card, index) =>
-        createRankedCard(card, index + 1)
-      );
-      onRankingChange(initialRanking);
+    if (availableCards.length === 5 && rankedCards.length === 0) {
+      // Use setTimeout to ensure we don't conflict with parent's state reset
+      const timer = setTimeout(() => {
+        const shuffledCards = shuffle(availableCards);
+        const initialRanking = shuffledCards.map((card, index) =>
+          createRankedCard(card, index + 1)
+        );
+        onRankingChange(initialRanking);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [availableCards, rankedCards.length, onRankingChange]);
-
-  // Reset initialization flag when availableCards change (new round)
-  useEffect(() => {
-    hasInitialized.current = false;
-  }, [availableCards]);
 
   // Handle tapping a card slot
   const handleSlotClick = (position: number) => {
