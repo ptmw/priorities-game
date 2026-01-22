@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card as CardType, RankedCard, RANK_LABELS } from "@/types/game";
 import { createRankedCard } from "@/lib/game-logic";
 import { shuffle } from "@/lib/card-utils";
+import { Loader2 } from "lucide-react";
 
 interface RankingAreaProps {
   /** All cards for this round */
@@ -27,10 +28,14 @@ export function RankingArea({
 }: RankingAreaProps) {
   // Track which card is currently selected for swapping
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
+  
+  // Track if we've initialized to prevent double-init
+  const hasInitialized = useRef(false);
 
   // Initialize cards in random positions when availableCards changes and rankedCards is empty
   useEffect(() => {
-    if (availableCards.length === 5 && rankedCards.length === 0) {
+    if (availableCards.length === 5 && rankedCards.length === 0 && !hasInitialized.current) {
+      hasInitialized.current = true;
       const shuffledCards = shuffle(availableCards);
       const initialRanking = shuffledCards.map((card, index) =>
         createRankedCard(card, index + 1)
@@ -38,6 +43,11 @@ export function RankingArea({
       onRankingChange(initialRanking);
     }
   }, [availableCards, rankedCards.length, onRankingChange]);
+
+  // Reset initialization flag when availableCards change (new round)
+  useEffect(() => {
+    hasInitialized.current = false;
+  }, [availableCards]);
 
   // Handle tapping a card slot
   const handleSlotClick = (position: number) => {
@@ -79,6 +89,23 @@ export function RankingArea({
 
   // Sort cards by position for display
   const sortedCards = [...rankedCards].sort((a, b) => a.position - b.position);
+
+  // Show loading state while cards are being initialized
+  const isInitializing = availableCards.length === 5 && rankedCards.length === 0;
+
+  if (isInitializing) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground">
+          {title}
+        </h2>
+        <div className="flex flex-col items-center justify-center py-12 space-y-3">
+          <Loader2 className="w-8 h-8 text-purple-punch animate-spin" />
+          <p className="text-sm text-foreground/60">Shuffling cards...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -169,11 +196,32 @@ function SwapSlot({
 }: SwapSlotProps) {
   const colors = slotColors[position];
 
+  // Don't render if no card (shouldn't happen after initialization)
+  if (!card) {
+    return (
+      <div className={`
+        w-full flex items-center gap-3 sm:gap-4
+        p-3 sm:p-4 rounded-xl border-2
+        ${colors.bg}
+      `}>
+        <div className="flex flex-col items-center justify-center w-14 sm:w-16 shrink-0">
+          <span className="text-2xl sm:text-3xl">{emoji}</span>
+          <span className="text-[10px] sm:text-xs font-semibold text-foreground/60 text-center leading-tight mt-0.5">
+            {label}
+          </span>
+        </div>
+        <div className="flex-1 min-w-0 flex items-center">
+          <Loader2 className="w-5 h-5 text-foreground/40 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled || !card}
+      disabled={disabled}
       className={`
         w-full
         flex items-center gap-3 sm:gap-4
@@ -200,7 +248,7 @@ function SwapSlot({
           font-semibold text-foreground text-base sm:text-lg
           ${isSelected ? "text-purple-punch" : ""}
         `}>
-          {card?.text || "..."}
+          {card.text}
         </span>
       </div>
 
