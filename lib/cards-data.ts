@@ -162,7 +162,11 @@ export const cardsData: Card[] = [
   { id: "activity-028", text: "People Watching", category: "activities" },
   { id: "activity-029", text: "Napping", category: "activities" },
   { id: "activity-030", text: "Baking", category: "activities" },
-  { id: "activity-031", text: "Scrolling Social Media", category: "activities" },
+  {
+    id: "activity-031",
+    text: "Scrolling Social Media",
+    category: "activities",
+  },
   { id: "activity-032", text: "Movie Marathons", category: "activities" },
   { id: "activity-033", text: "Escape Rooms", category: "activities" },
   { id: "activity-034", text: "Trivia Night", category: "activities" },
@@ -171,7 +175,11 @@ export const cardsData: Card[] = [
   { id: "activity-037", text: "Journaling", category: "activities" },
   { id: "activity-038", text: "Going to Museums", category: "activities" },
   { id: "activity-039", text: "Doing Nothing", category: "activities" },
-  { id: "activity-040", text: "Online Shopping at 2am", category: "activities" },
+  {
+    id: "activity-040",
+    text: "Online Shopping at 2am",
+    category: "activities",
+  },
 
   // Trends & Lifestyle (40 cards)
   { id: "trend-001", text: "Working From Home", category: "trends" },
@@ -212,6 +220,10 @@ export const cardsData: Card[] = [
   { id: "trend-036", text: "Vintage Everything", category: "trends" },
   { id: "trend-037", text: "Bookstagram", category: "trends" },
   { id: "trend-038", text: "Subscription Boxes", category: "trends" },
-  { id: "trend-039", text: "Emotional Support Water Bottles", category: "trends" },
+  {
+    id: "trend-039",
+    text: "Emotional Support Water Bottles",
+    category: "trends",
+  },
   { id: "trend-040", text: "Main Character Energy", category: "trends" },
 ];
