@@ -71,15 +71,14 @@ body {
 }
 
 /* Drag and drop feedback */
-.drop-zone-active {
-  background: rgba(155, 93, 229, 0.1);
-  border: 2px dashed var(--purple-punch);
+.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
 }
 
-.dragging {
-  opacity: 0.8;
-  transform: rotate(3deg) scale(1.05);
-  box-shadow: 0 12px 40px rgba(155, 93, 229, 0.3);
+/* Smooth transitions for drag operations */
+[role="button"][aria-pressed="true"] {
+  cursor: grabbing;
 }
 
 /* Fun button animation */
