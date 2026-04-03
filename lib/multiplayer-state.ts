@@ -9,6 +9,7 @@
 import { create } from "zustand";
 import { supabase, now } from "./supabase";
 import { cardsData as allCards } from "./cards-data";
+import { logger } from "./logger";
 import {
   createRoom as createRoomUtil,
   joinRoom as joinRoomUtil,
@@ -176,7 +177,11 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
       try {
         await leaveRoomUtil(playerId, room.id);
       } catch (error) {
-        console.error("Error leaving room:", error);
+        logger.error("Error leaving room:", error);
+        // Surface error to user
+        set({
+          error: error instanceof Error ? error.message : "Failed to leave room properly"
+        });
       }
     }
 
@@ -208,11 +213,11 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
       // Assign roles
       const { pickerId, guesserId } = assignRoles(connectedPlayers);
 
-      console.log("[startGame] Starting round 1, picker:", pickerId, "guesser:", guesserId);
+      logger.log("[startGame] Starting round 1, picker:", pickerId, "guesser:", guesserId);
 
       // Start round 1
       const newRound = await startRound(room.id, 1, pickerId, guesserId);
-      console.log("[startGame] Round created:", newRound);
+      logger.log("[startGame] Round created:", newRound);
 
       // Optimistically update local state (real-time will confirm)
       let myRole: "picker" | "guesser" | "spectator" = "spectator";
@@ -237,8 +242,9 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
 
       return { success: true };
     } catch (error) {
-      console.error("[startGame] Failed:", error);
+      logger.error("[startGame] Failed:", error);
       const message = error instanceof Error ? error.message : "Failed to start game";
+      set({ error: message });
       return { success: false, error: message };
     }
   },
@@ -298,12 +304,12 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
     // Assign new roles
     const { pickerId, guesserId } = assignRoles(connectedPlayers, previousPickerId);
 
-    console.log("[nextRound] Starting round", room.current_round + 1, "picker:", pickerId, "guesser:", guesserId);
+    logger.log("[nextRound] Starting round", room.current_round + 1, "picker:", pickerId, "guesser:", guesserId);
 
     try {
       // Start next round
       const newRound = await startRound(room.id, room.current_round + 1, pickerId, guesserId);
-      console.log("[nextRound] Round created:", newRound);
+      logger.log("[nextRound] Round created:", newRound);
 
       // Optimistically update local state (real-time will confirm)
       const { playerId } = get();
@@ -327,7 +333,9 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
         room: { ...room, current_round: newRound.round_number, status: "playing" },
       });
     } catch (error) {
-      console.error("[nextRound] Failed:", error);
+      logger.error("[nextRound] Failed:", error);
+      const message = error instanceof Error ? error.message : "Failed to start next round";
+      set({ error: message });
       throw error;
     }
   },
@@ -361,7 +369,10 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
               isHost: me?.is_host || false,
             });
           } catch (error) {
-            console.error("Error fetching players:", error);
+            logger.error("Error fetching players:", error);
+            set({
+              error: error instanceof Error ? error.message : "Failed to fetch players"
+            });
           }
         }
       )
@@ -454,7 +465,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => ({
         try {
           await updateHeartbeat(playerId, room.id);
         } catch (error) {
-          console.error("Heartbeat error:", error);
+          logger.error("Heartbeat error:", error);
         }
       }
     }, MULTIPLAYER_CONSTANTS.HEARTBEAT_INTERVAL_MS);

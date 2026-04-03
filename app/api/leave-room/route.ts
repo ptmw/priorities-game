@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 /**
  * POST /api/leave-room
- * 
+ *
  * Called via sendBeacon when a player closes their tab.
  * Marks the player as disconnected and handles host transfer if needed.
  */
@@ -11,10 +12,18 @@ export async function POST(request: NextRequest) {
   try {
     // Create Supabase client inside handler (not at module level)
     // to avoid build-time execution when env vars aren't available
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      logger.error("Missing Supabase environment variables");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await request.json();
     const { playerId, roomId } = body;
@@ -71,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, action: "player_disconnected" });
   } catch (error) {
-    console.error("Error in leave-room:", error);
+    logger.error("Error in leave-room:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

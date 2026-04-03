@@ -6,6 +6,7 @@
 
 import { supabase, now } from "./supabase";
 import { getRandomCards } from "./card-utils";
+import { logger } from "./logger";
 import type { Room, Player, Round, RankingEntry } from "@/types/database";
 import type { CreateRoomResult, JoinRoomResult } from "@/types/multiplayer";
 import { MULTIPLAYER_CONSTANTS } from "@/types/multiplayer";
@@ -61,7 +62,7 @@ export async function createRoom(hostName: string): Promise<CreateRoomResult> {
         if (roomError.code === "23505") {
           continue; // Try again with a new code
         }
-        console.error("Room creation error:", roomError);
+        logger.error("Room creation error:", roomError);
         throw new Error(roomError.message || "Failed to create room");
       }
       
@@ -80,14 +81,14 @@ export async function createRoom(hostName: string): Promise<CreateRoomResult> {
       
       if (playerError) {
         // Clean up the room if player creation fails
-        console.error("Player creation error:", playerError);
+        logger.error("Player creation error:", playerError);
         await supabase.from("rooms").delete().eq("id", roomId);
         throw new Error(playerError.message || "Failed to create player");
       }
       
       return { room: room as Room, player: player as Player };
     } catch (error) {
-      console.error(`Attempt ${attempt + 1} failed:`, error);
+      logger.error(`Attempt ${attempt + 1} failed:`, error);
       if (attempt === maxAttempts - 1) {
         const message = error instanceof Error ? error.message : "Unknown error";
         throw new Error(`Failed to create room: ${message}`);
@@ -286,8 +287,8 @@ export async function startRound(
   pickerId: string,
   guesserId: string
 ): Promise<Round> {
-  console.log(`[startRound] Starting round ${roundNumber} for room ${roomId}`);
-  
+  logger.log(`[startRound] Starting round ${roundNumber} for room ${roomId}`);
+
   // Check if round already exists (in case of retry/race condition)
   const { data: existingRound } = await supabase
     .from("rounds")
@@ -295,17 +296,17 @@ export async function startRound(
     .eq("room_id", roomId)
     .eq("round_number", roundNumber)
     .single();
-  
+
   if (existingRound) {
-    console.log("[startRound] Round already exists, returning existing round");
+    logger.log("[startRound] Round already exists, returning existing round");
     return existingRound as Round;
   }
 
   // Get 5 random cards
   const cards = getRandomCards(5);
   const cardIds = cards.map(c => c.id);
-  
-  console.log("[startRound] Inserting new round...");
+
+  logger.log("[startRound] Inserting new round...");
   const { data: round, error } = await supabase
     .from("rounds")
     .insert({
@@ -320,26 +321,26 @@ export async function startRound(
     .single();
   
   if (error) {
-    console.error("[startRound] Error creating round:", error);
+    logger.error("[startRound] Error creating round:", error);
     throw new Error(error.message || "Failed to create round");
   }
-  
-  console.log("[startRound] Round created, updating room...");
+
+  logger.log("[startRound] Round created, updating room...");
   // Update room
   const { error: updateError } = await supabase
     .from("rooms")
-    .update({ 
+    .update({
       status: "playing",
       current_round: roundNumber,
       last_activity_at: now(),
     })
     .eq("id", roomId);
-  
+
   if (updateError) {
-    console.error("[startRound] Error updating room:", updateError);
+    logger.error("[startRound] Error updating room:", updateError);
   }
-  
-  console.log("[startRound] Done!");
+
+  logger.log("[startRound] Done!");
   return round as Round;
 }
 

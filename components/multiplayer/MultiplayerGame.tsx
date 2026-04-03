@@ -11,6 +11,7 @@ import { ScoreDisplay } from "@/components/game/ScoreDisplay";
 import { Button } from "@/components/ui/Button";
 import { cardsData } from "@/lib/cards-data";
 import { createRankedCard } from "@/lib/game-logic";
+import { logger } from "@/lib/logger";
 import type { Card, RankedCard } from "@/types/game";
 import type { RankingEntry } from "@/types/database";
 import {
@@ -108,7 +109,7 @@ export function MultiplayerGame() {
       }));
       await submitPicking(entries);
     } catch (error) {
-      console.error("Failed to submit picking:", error);
+      logger.error("Failed to submit picking:", error);
     }
     setIsSubmitting(false);
   };
@@ -125,7 +126,7 @@ export function MultiplayerGame() {
       }));
       await submitGuess(entries);
     } catch (error) {
-      console.error("Failed to submit guess:", error);
+      logger.error("Failed to submit guess:", error);
     }
     setIsSubmitting(false);
   };
@@ -136,7 +137,7 @@ export function MultiplayerGame() {
     try {
       await nextRound();
     } catch (error) {
-      console.error("Failed to start next round:", error);
+      logger.error("Failed to start next round:", error);
     }
     setIsSubmitting(false);
   };

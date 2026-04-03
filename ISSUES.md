@@ -106,6 +106,30 @@ ALTER TABLE players ADD CONSTRAINT players_per_room_check
 
 ---
 
+### Player Rotation Uses Random Selection Instead of Round-Robin
+
+**Status:** Open
+**Type:** Bug
+**Priority:** High
+**Effort:** Low
+
+**Summary:**
+Picker role randomly selects from eligible players instead of cycling through everyone in order. Can skip players entirely.
+
+**Current Behavior:**
+- `assignRoles()` randomly picks from anyone except previous picker
+- With 3 players, can result in pattern like 1→2→1→2 (skipping player 3)
+- Intermittent - sometimes works, sometimes skips
+
+**Expected Behavior:**
+- Deterministic round-robin: 1→2→3→1→2→3...
+- Every player gets equal turns as picker
+
+**Relevant Files:**
+- [lib/room-utils.ts:250-279](lib/room-utils.ts#L250-L279) - `assignRoles()` function
+
+---
+
 ## 🟡 Normal Priority
 
 <!-- Add more issues here as they come up -->
